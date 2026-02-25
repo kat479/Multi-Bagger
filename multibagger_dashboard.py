@@ -160,6 +160,65 @@ def _calc_peg(info: dict):
     return round(peg, 2) if 0 < peg < 50 else None
 
 
+
+def _calc_roe(info: dict, ticker_obj=None):
+    """
+    Calculate ROE from available data.
+    Priority:
+      1. yfinance returnOnEquity (when available)
+      2. netIncome / stockholdersEquity from financials (manual fallback)
+      3. EPS * shares / stockholdersEquity (secondary fallback)
+    Returns decimal (e.g. 0.26 = 26%). Returns None if cannot calculate.
+    """
+    # 1. Use yfinance value if present and sensible
+    roe_yf = info.get("returnOnEquity")
+    if roe_yf is not None and -2 < roe_yf < 10:
+        return roe_yf
+
+    # 2. Manual calculation: Net Income / Shareholders Equity
+    try:
+        if ticker_obj is not None:
+            # Try income statement + balance sheet
+            financials = ticker_obj.financials       # annual income statement
+            balance    = ticker_obj.balance_sheet    # annual balance sheet
+
+            if financials is not None and not financials.empty:
+                # Net income — most recent year
+                net_income = None
+                for key in ["Net Income", "Net Income Common Stockholders", "Net Income From Continuing Operations"]:
+                    if key in financials.index:
+                        net_income = float(financials.loc[key].iloc[0])
+                        break
+
+                # Shareholders equity — most recent year
+                equity = None
+                for key in ["Stockholders Equity", "Total Equity Gross Minority Interest",
+                            "Common Stock Equity", "Total Stockholders Equity"]:
+                    if balance is not None and not balance.empty and key in balance.index:
+                        equity = float(balance.loc[key].iloc[0])
+                        break
+
+                if net_income is not None and equity is not None and equity > 0:
+                    roe = net_income / equity
+                    if -2 < roe < 10:  # sanity check
+                        return round(roe, 4)
+    except Exception:
+        pass
+
+    # 3. Fallback: EPS * shares outstanding / book value per share * shares
+    try:
+        eps    = info.get("trailingEps")
+        bvps   = info.get("bookValue")  # book value per share
+        if eps and bvps and bvps > 0:
+            roe = eps / bvps
+            if -2 < roe < 10:
+                return round(roe, 4)
+    except Exception:
+        pass
+
+    return None
+
+
 def fetch_batch_fundamentals(tickers: list) -> dict:
     """
     Uses yfinance.download() for price data (fast, batch).
@@ -233,7 +292,7 @@ def fetch_batch_fundamentals(tickers: list) -> dict:
                 "ps":            info.get("priceToSalesTrailing12Months"),
                 "rev_growth":    info.get("revenueGrowth"),
                 "earn_growth":   info.get("earningsGrowth"),
-                "roe":           info.get("returnOnEquity"),
+                "roe":           _calc_roe(info, t if tickers_obj else None),
                 "roa":           info.get("returnOnAssets"),
                 "debt_equity":   info.get("debtToEquity"),
                 "free_cashflow": info.get("freeCashflow"),
