@@ -1,6 +1,14 @@
-streamlit==1.31.0
-pandas==2.1.4
-yfinance==0.2.35
-plotly==5.18.0
-requests==2.31.0
-scipy==1.11.4
+# Multibagger Dashboard & Portfolio Tracker
+# Install with: pip install -r requirements.txt
+
+# Core data
+yfinance>=0.2.36
+pandas>=2.0.0
+requests>=2.31.0
+
+# Dashboard
+streamlit>=1.35.0
+plotly>=5.20.0
+
+# Utilities
+tqdm>=4.66.0
