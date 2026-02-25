@@ -573,7 +573,7 @@ with tab1:
         .applymap(growth_color, subset=["Rev Gr%", "EPS Gr%", "↓ From 52W High%"])
         .format(na_rep="—")
     )
-    st.dataframe(styled, use_container_width=True, height=520)
+    st.dataframe(styled, height=520)
 
     csv = table_df.to_csv(index=False)
     st.download_button("⬇️ Download CSV", csv, "nifty500_multibagger_screener.csv", "text/csv")
@@ -654,7 +654,7 @@ with tab2:
             }
         ))
         fig_gauge.update_layout(height=260, paper_bgcolor="#0e1117", font_color="white")
-        st.plotly_chart(fig_gauge, use_container_width=True)
+        st.plotly_chart(fig_gauge)
 
 # ══════════════════════════════════════════════
 # TAB 3 — PRICE CHARTS
@@ -691,7 +691,7 @@ with tab3:
         )
         fig.update_xaxes(gridcolor="#2d3452")
         fig.update_yaxes(gridcolor="#2d3452")
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig)
 
         st.subheader("📊 Candlestick Chart")
         candle_name   = st.selectbox("Select stock for candlestick", chart_selected, key="candle")
@@ -721,7 +721,7 @@ with tab3:
                     )
                     fig2.update_xaxes(gridcolor="#2d3452")
                     fig2.update_yaxes(gridcolor="#2d3452")
-                    st.plotly_chart(fig2, use_container_width=True)
+                    st.plotly_chart(fig2)
             except Exception as e:
                 st.warning(f"Could not load chart: {e}")
 
@@ -761,7 +761,7 @@ with tab5:
             fig_hist.add_vline(x=40, line_dash="dash", line_color="#fbbf24", annotation_text="Watch (40+)")
             fig_hist.update_xaxes(gridcolor="#2d3452")
             fig_hist.update_yaxes(gridcolor="#2d3452")
-            st.plotly_chart(fig_hist, use_container_width=True)
+            st.plotly_chart(fig_hist)
 
         with col2:
             ind_counts = df["Industry"].value_counts().head(15)
@@ -776,7 +776,7 @@ with tab5:
                 height=350, yaxis={"autorange": "reversed"},
             )
             fig_bar.update_xaxes(gridcolor="#2d3452")
-            st.plotly_chart(fig_bar, use_container_width=True)
+            st.plotly_chart(fig_bar)
 
         # ROE vs Revenue Growth scatter
         st.subheader("📍 ROE vs Revenue Growth (bubble size = market cap)")
@@ -811,7 +811,7 @@ with tab5:
         fig_sc.add_vline(x=15, line_dash="dash", line_color="#fbbf24", annotation_text="RevGr 15%")
         fig_sc.update_xaxes(gridcolor="#2d3452")
         fig_sc.update_yaxes(gridcolor="#2d3452")
-        st.plotly_chart(fig_sc, use_container_width=True)
+        st.plotly_chart(fig_sc)
 
         # Top 20 horizontal bar
         st.subheader("🏆 Top 20 by Multibagger Score")
@@ -829,7 +829,7 @@ with tab5:
             margin=dict(l=220),
         )
         fig_top.update_xaxes(gridcolor="#2d3452")
-        st.plotly_chart(fig_top, use_container_width=True)
+        st.plotly_chart(fig_top)
 
 st.divider()
 st.caption("⚠️ For **research and educational purposes only**. Not SEBI-registered investment advice. Always do your own due diligence.")
